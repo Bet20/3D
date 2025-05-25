@@ -101,5 +101,7 @@ if current_mesh and len(current_mesh) > 1:
 if all_meshes:
     print(f"Generating visualization with {len(all_meshes)} meshes")
     obj.generate_visualization(all_meshes)
+    # Export to OBJ file
+    obj.export_to_obj(all_meshes)
 else:
     print("No meshes were created. Please try again.")
