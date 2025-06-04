@@ -9,16 +9,12 @@ With the single hand mode, drawing is done by putting your index finger up, stop
 ```sh
 # note: It's a good practice to create an
 # environment to run the application
-pip install mediapipe opencv trimesh
+pip install mediapipe opencv trimesh numpy
+pip install --no-cache-dir -r requirements.txt
 ```
 
 ## How to run
 ```sh
 python tridraw --mode single # for single hand mode
 python tridraw --mode dual # for dual hand mode
-```
-
-or, if you would rather use docker
-```sh
-docker 
 ```
