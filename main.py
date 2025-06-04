@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import obj
+from controls import DrawingControls
 
 mp_hands = mp.solutions.hands
 mp_draw = mp.solutions.drawing_utils
@@ -13,11 +14,7 @@ if not cap.isOpened():
 
 all_meshes = []
 current_mesh = []
-pr = 0.001
-depth_modifier = 3
-
-def simplify_point(p):
-    return (round(p.x/pr) * pr, round(p.y/pr) * pr, round(p.z*depth_modifier/pr) * pr)
+controls = DrawingControls(initial_pr=0.001, depth_modifier=3)
 
 def is_hand_open(landmarks):
     index_tip = landmarks[8]
@@ -64,20 +61,15 @@ while True:
             is_right_hand = wrist_x > 0.5
             
             if is_right_hand:
-                # mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-                
                 if is_drawing_enabled:
                     index_tip = landmarks[8]
-                    point = simplify_point(index_tip)
+                    point = controls.simplify_point(index_tip)
                     current_mesh.append(point)
-
             else:
-                # mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
                 is_drawing_enabled = is_hand_open(landmarks)
                 
                 if not is_drawing_enabled and current_mesh and len(current_mesh) > 1:
                     all_meshes.append(current_mesh)
-                    print(f"Saved mesh with {len(current_mesh)} points")
                     current_mesh = []
 
     if current_mesh:
@@ -85,7 +77,8 @@ while True:
 
     status = "Drawing Enabled" if is_drawing_enabled else "Drawing Disabled"
     cv2.putText(img, status, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(img, f"Meshes Created: {len(all_meshes)}", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.putText(img, f"Meshes Created: {len(all_meshes)}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.putText(img, f"Precision: {controls.get_current_precision():.6f}", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
     cv2.imshow("Hand Gesture", img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -101,7 +94,6 @@ if current_mesh and len(current_mesh) > 1:
 if all_meshes:
     print(f"Generating visualization with {len(all_meshes)} meshes")
     obj.generate_visualization(all_meshes)
-    # Export to OBJ file
     obj.export_to_obj(all_meshes)
 else:
     print("No meshes were created. Please try again.")
