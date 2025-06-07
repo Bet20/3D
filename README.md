@@ -15,6 +15,5 @@ pip install --no-cache-dir -r requirements.txt
 
 ## How to run
 ```sh
-python src/tridraw --mode single # for single hand mode
-python src/tridraw --mode dual # for dual hand mode
+python src/tridraw
 ```
